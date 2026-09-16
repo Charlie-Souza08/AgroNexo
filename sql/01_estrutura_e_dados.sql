@@ -20,35 +20,35 @@ DROP TABLE IF EXISTS CargoFuncionario;
 -- ============================================
 
 CREATE TABLE CargoFuncionario (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     descricao VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE TipoInsumo (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     descricao VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE TipoOperacao (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     descricao VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE Propriedade (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     municipio VARCHAR(80) NOT NULL,
     area_total_ha NUMERIC(10,2) NOT NULL CHECK (area_total_ha > 0)
 );
 
 CREATE TABLE Cultura (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     nome VARCHAR(60) NOT NULL,
     ciclo_dias INT NOT NULL CHECK (ciclo_dias > 0)
 );
 
 CREATE TABLE Talhao (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     codigo VARCHAR(20) NOT NULL UNIQUE,
     area_ha NUMERIC(8,2) NOT NULL CHECK (area_ha > 0),
     idPropriedade INT NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE Talhao (
 );
 
 CREATE TABLE Funcionario (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf VARCHAR(14) NOT NULL UNIQUE,
     idCargo INT NOT NULL,
@@ -70,14 +70,14 @@ CREATE TABLE Funcionario (
 );
 
 CREATE TABLE Maquina (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     modelo VARCHAR(80) NOT NULL,
     tipo VARCHAR(40) NOT NULL,
     ano_fabricacao INT NOT NULL CHECK (ano_fabricacao >= 1970)
 );
 
 CREATE TABLE Insumo (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     unidade_medida VARCHAR(10) NOT NULL,
     custo_unitario NUMERIC(10,2) NOT NULL CHECK (custo_unitario >= 0),
@@ -89,7 +89,7 @@ CREATE TABLE Insumo (
 );
 
 CREATE TABLE AtividadeAgricola (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     data_operacao DATE NOT NULL,
     idTalhao INT NOT NULL,
     idCultura INT NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE AtividadeAgricola (
 );
 
 CREATE TABLE AtividadeInsumo (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     idAtividade INT NOT NULL,
     idInsumo INT NOT NULL,
     quantidade_aplicada NUMERIC(10,2) NOT NULL CHECK (quantidade_aplicada > 0),
@@ -134,7 +134,7 @@ CREATE TABLE AtividadeInsumo (
 );
 
 CREATE TABLE Colheita (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY,
     data_colheita DATE NOT NULL,
     quantidade_kg NUMERIC(12,2) NOT NULL CHECK (quantidade_kg > 0),
     valor_venda_total NUMERIC(12,2) NOT NULL CHECK (valor_venda_total >= 0),
@@ -154,67 +154,73 @@ CREATE TABLE Colheita (
 -- BLOCO 3: INSERTS TABELAS AUXILIARES
 -- ============================================
 
-INSERT INTO CargoFuncionario (descricao) VALUES
-('Operador de Maquinas'),
-('Engenheiro Agronomo'),
-('Trabalhador Rural');
+INSERT INTO CargoFuncionario (id, descricao) VALUES
+(1, 'Operador de Maquinas'),
+(2, 'Engenheiro Agronomo'),
+(3, 'Trabalhador Rural');
 
-INSERT INTO TipoInsumo (descricao) VALUES
-('Fertilizante'),
-('Defensivo Quimico'),
-('Semente');
+INSERT INTO TipoInsumo (id, descricao) VALUES
+(1, 'Fertilizante'),
+(2, 'Defensivo Quimico'),
+(3, 'Semente');
 
-INSERT INTO TipoOperacao (descricao) VALUES
-('Preparo de Solo'),
-('Plantio'),
-('Pulverizacao');
+INSERT INTO TipoOperacao (id, descricao) VALUES
+(1, 'Preparo de Solo'),
+(2, 'Plantio'),
+(3, 'Pulverizacao');
 
 -- ============================================
 -- BLOCO 4: INSERTS TABELAS CORE
 -- ============================================
 
 -- 30 Propriedades
-INSERT INTO Propriedade (nome, municipio, area_total_ha)
+INSERT INTO Propriedade (id, nome, municipio, area_total_ha)
 SELECT 
+    gs,
     'Fazenda Santa ' || gs,
     'Municipio ' || (((gs - 1) % 5) + 1),
     (random() * 800 + 100)::numeric(10,2)
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Culturas
-INSERT INTO Cultura (nome, ciclo_dias)
+INSERT INTO Cultura (id, nome, ciclo_dias)
 SELECT 
+    gs,
     'Cultura Variedade ' || gs,
     (random() * 90 + 60)::int
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Talhoes
-INSERT INTO Talhao (codigo, area_ha, idPropriedade)
+INSERT INTO Talhao (id, codigo, area_ha, idPropriedade)
 SELECT 
+    gs,
     'TAL-' || LPAD(gs::text, 3, '0'),
     (random() * 50 + 10)::numeric(8,2),
     ((gs - 1) % 30) + 1
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Funcionarios
-INSERT INTO Funcionario (nome, cpf, idCargo)
+INSERT INTO Funcionario (id, nome, cpf, idCargo)
 SELECT 
+    gs,
     'Funcionario Campo ' || gs,
     LPAD(gs::text, 11, '0'),
     ((gs - 1) % 3) + 1
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Maquinas
-INSERT INTO Maquina (modelo, tipo, ano_fabricacao)
+INSERT INTO Maquina (id, modelo, tipo, ano_fabricacao)
 SELECT 
+    gs,
     'Trator Modelo ' || gs,
     'Equipamento Agricola',
     (2000 + ((gs - 1) % 24))::int
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Insumos
-INSERT INTO Insumo (nome, unidade_medida, custo_unitario, idTipoInsumo)
+INSERT INTO Insumo (id, nome, unidade_medida, custo_unitario, idTipoInsumo)
 SELECT 
+    gs,
     'Insumo Agricola ' || gs,
     CASE WHEN (gs % 2 = 0) THEN 'KG' ELSE 'L' END,
     (random() * 150 + 20)::numeric(10,2),
@@ -222,8 +228,9 @@ SELECT
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Atividades Agricolas
-INSERT INTO AtividadeAgricola (data_operacao, idTalhao, idCultura, idFuncionario, idMaquina, idTipoOperacao)
+INSERT INTO AtividadeAgricola (id, data_operacao, idTalhao, idCultura, idFuncionario, idMaquina, idTipoOperacao)
 SELECT 
+    gs,
     CURRENT_DATE - (gs || ' days')::interval,
     ((gs - 1) % 30) + 1,
     ((gs - 1) % 30) + 1,
@@ -233,16 +240,18 @@ SELECT
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Relacionamentos Atividade / Insumo
-INSERT INTO AtividadeInsumo (idAtividade, idInsumo, quantidade_aplicada)
+INSERT INTO AtividadeInsumo (id, idAtividade, idInsumo, quantidade_aplicada)
 SELECT 
+    gs,
     gs,
     ((gs - 1) % 30) + 1,
     (random() * 40 + 5)::numeric(10,2)
 FROM generate_series(1, 30) AS gs;
 
 -- 30 Colheitas
-INSERT INTO Colheita (data_colheita, quantidade_kg, valor_venda_total, idTalhao, idCultura)
+INSERT INTO Colheita (id, data_colheita, quantidade_kg, valor_venda_total, idTalhao, idCultura)
 SELECT 
+    gs,
     CURRENT_DATE - ((gs * 2) || ' days')::interval,
     (random() * 50000 + 10000)::numeric(12,2),
     (random() * 120000 + 30000)::numeric(12,2),
