@@ -1,0 +1,21 @@
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Configuracoes locais de editores
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos temporarios e copias de seguranca
+*.tmp
+*.temp
+*.bak
+*~
+
+# Exportacoes e logs locais
+*.log
+*.dump
+*.backup

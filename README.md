@@ -1,90 +1,139 @@
-# AgroNexo - Gestão de Fazenda
+# AgroNexo — Gestão de Fazenda
 
-## 1. Visão Geral
+O **AgroNexo** é um projeto de banco de dados relacional para controle de propriedades rurais, talhões, culturas, funcionários, máquinas, insumos, atividades agrícolas e colheitas. A solução centraliza dados operacionais e permite analisar custos, produtividade, utilização de recursos e rastreabilidade das operações de campo.
 
-O **AgroNexo** é um sistema de banco de dados relacional projetado para suprir as demandas de governança, rastreabilidade e controle operacional no agronegócio contemporâneo. A gestão de propriedades agrícolas enfrenta com frequência desafios relacionados à dispersão de registros em cadernos de campo, planilhas despadronizadas e ausência de integração entre as etapas de manejo e os resultados produtivos.
-
-A solução visa mitigar gargalos como o desperdício de insumos, o subdimensionamento de frotas agrícolas e a imprecisão no cálculo de custos e produtividade por talhão. Por meio de uma modelagem relacional normalizada, o AgroNexo consolida desde o cadastramento geoespacial das propriedades rurais até o fechamento financeiro e quantitativo das colheitas.
-
----
-
-## 2. Participantes do Projeto
+## Participantes
 
 - Italo Yan Mendes da Silva
 - Hellen Verena da Conceição Magalhães
 - Heitor Sales Souza
 
----
+## Tecnologias
 
-## 3. Escopo do Sistema
+- PostgreSQL
+- SQL para definição de dados (DDL)
+- SQL para manipulação de dados (DML)
+- SQL para consultas relacionais (DQL)
 
-O escopo do sistema abrange o ciclo completo de planejamento e execução agrícola em nível de talhão, compreendendo os seguintes módulos e fluxos:
+## Organização do repositório
 
-- **Controle Territorial:** Cadastro das propriedades rurais e sua subdivisão física e operacional em talhões produtivos.
-- **Gestão de Culturas:** Catalogação das espécies cultivadas e seus ciclos fenológicos em dias.
-- **Recursos Humanos e Mecanização:** Controle da equipe de campo com categorização de funções e cadastro de tratores e implementos agrícolas.
-- **Gestão de Insumos:** Classificação de materiais (sementes, defensivos e fertilizantes) e monitoramento de custos unitários e unidades de medida.
-- **Operações de Campo:** Registro cronológico das atividades agrícolas (preparo de solo, plantio, pulverização, adubação), associando talhão, operador, maquinário e insumos aplicados.
-- **Encerramento de Safra e Colheita:** Apontamento da colheita com registro de massa produzida (kg), receita obtida e correlação com a área cultivada.
+```text
+AgroNexo/
+├── README.md
+└── sql/
+    ├── ddl/
+    │   └── 01_estrutura.sql
+    ├── dml/
+    │   └── 02_dados.sql
+    └── dql/
+        └── 03_consultas_relacionais.sql
+```
 
----
+| Diretório | Conteúdo |
+|---|---|
+| `sql/ddl` | Criação das tabelas, restrições, relacionamentos e índices. |
+| `sql/dml` | Carga determinística dos dados usados na demonstração. |
+| `sql/dql` | As 20 consultas relacionais solicitadas no trabalho. |
 
-## 4. Dicionário de Entidades e Atributos
+Os arquivos possuem prefixos numéricos que indicam a ordem de execução.
 
-Abaixo estão detalhadas as entidades centrais do modelo relacional, suas descrições funcionais, atributos essenciais e seu papel dentro do ciclo de vida agrícola.
+## Como executar
 
-### 4.1. Propriedade
-- **Descrição Funcional:** Representa a fazenda ou unidade imobiliária rural produtora.
-- **Atributos Essenciais:** `id` (Chave Primária), `nome` (Identificação da propriedade), `municipio` (Localização administrativa), `area_total_ha` (Área total contínua em hectares).
-- **Papel no Fluxo Agrícola:** Atua como a entidade delimitadora de topo, agregando os talhões sob uma mesma gestão jurídica e territorial.
+### Pré-requisito
 
-### 4.2. Talhao
-- **Descrição Funcional:** Subdivisão contínua de área produtiva pertencente a uma propriedade rural, utilizada para segregação de manejos e culturas.
-- **Atributos Essenciais:** `id` (Chave Primária), `codigo` (Identificador alfanumérico no mapa da fazenda), `area_ha` (Área líquida plantável em hectares), `idPropriedade` (Chave Estrangeira para Propriedade).
-- **Papel no Fluxo Agrícola:** Unidade básica de amostragem, aplicação de insumos e mensuração de rendimento agropecuário.
+É necessário ter o PostgreSQL instalado e um banco de dados disponível. O exemplo abaixo considera um banco chamado `agronexo`.
 
-### 4.3. Cultura
-- **Descrição Funcional:** Registro taxonômico e agronômico da espécie vegetal explorada comercialmente.
-- **Atributos Essenciais:** `id` (Chave Primária), `nome` (Nome comercial/comum da cultura), `ciclo_dias` (Duração estimada do plantio à colheita em dias).
-- **Papel no Fluxo Agrícola:** Define as necessidades nutricionais, a época de intervenção e serve de base para o cruzamento de dados com o calendário de operações.
+```bash
+createdb agronexo
+psql -d agronexo -f sql/ddl/01_estrutura.sql
+psql -d agronexo -f sql/dml/02_dados.sql
+psql -d agronexo -f sql/dql/03_consultas_relacionais.sql
+```
 
-### 4.4. Funcionario
-- **Descrição Funcional:** Cadastro do colaborador alocado nas tarefas rurais da propriedade.
-- **Atributos Essenciais:** `id` (Chave Primária), `nome` (Nome completo), `cpf` (Documento de identificação com restrição de unicidade), `idCargo` (Chave Estrangeira para CargoFuncionario).
-- **Papel no Fluxo Agrícola:** Determina a responsabilidade operacional por cada intervenção agrícola realizada em campo.
+Também é possível abrir os arquivos no pgAdmin e executá-los, na mesma ordem, por meio da ferramenta de consulta.
 
-### 4.5. Maquina
-- **Descrição Funcional:** Cadastro do maquinário agrícola motorizado ou implemento tracionado empregado nas operações.
-- **Atributos Essenciais:** `id` (Chave Primária), `modelo` (Identificação do modelo e fabricante), `tipo` (Classificação: trator, colheitadeira, pulverizador), `ano_fabricacao` (Ano de fabricação para depreciação e manutenção).
-- **Papel no Fluxo Agrícola:** Rastreia o emprego de mecanização por atividade, viabilizando análises de consumo e alocação de frota.
+> O arquivo DDL remove e recria as tabelas do projeto. Não deve ser executado em um banco que contenha dados que precisem ser preservados.
 
-### 4.6. Insumo
-- **Descrição Funcional:** Produto químico, orgânico ou biológico consumido nas lavouras.
-- **Atributos Essenciais:** `id` (Chave Primária), `nome` (Nome comercial do produto), `unidade_medida` (Unidade padrão de pesagem ou dosagem: KG, L, SC), `custo_unitario` (Valor unitário de aquisição), `idTipoInsumo` (Chave Estrangeira para TipoInsumo).
-- **Papel no Fluxo Agrícola:** Provê os insumos necessários para nutrição e proteção das plantas, constituindo a principal base de custos variáveis operacionais.
+## Modelo de dados
 
-### 4.7. AtividadeAgricola
-- **Descrição Funcional:** Registro de um evento de manejo executado em um talhão em data determinada.
-- **Atributos Essenciais:** `id` (Chave Primária), `data_operacao` (Data da intervenção), `idTalhao` (Chave Estrangeira), `idCultura` (Chave Estrangeira), `idFuncionario` (Chave Estrangeira), `idMaquina` (Chave Estrangeira opcional), `idTipoOperacao` (Chave Estrangeira para TipoOperacao).
-- **Papel no Fluxo Agrícola:** Entidade central de auditoria e linha do tempo agronômica, conectando o recurso humano, a máquina, a cultura e a área de cultivo.
+O banco é composto pelas seguintes entidades:
 
-### 4.8. AtividadeInsumo
-- **Descrição Funcional:** Tabela associativa que detalha o consumo real de insumos alocados a uma atividade de campo.
-- **Atributos Essenciais:** `id` (Chave Primária), `idAtividade` (Chave Estrangeira), `idInsumo` (Chave Estrangeira), `quantidade_aplicada` (Massa ou volume aplicado na operação).
-- **Papel no Fluxo Agrícola:** Resolve o relacionamento muitos-para-muitos entre operações e materiais, permitindo o cômputo exato da dosagem e a apuração de custos por talhão.
+| Entidade | Finalidade |
+|---|---|
+| `Propriedade` | Identifica a unidade rural e sua área total. |
+| `Talhao` | Representa uma subdivisão produtiva da propriedade. |
+| `Cultura` | Cataloga as culturas e seus ciclos médios. |
+| `CargoFuncionario` | Classifica os cargos da equipe de campo. |
+| `Funcionario` | Identifica o responsável pelas operações agrícolas. |
+| `Maquina` | Mantém os equipamentos utilizados nas atividades. |
+| `TipoInsumo` | Classifica fertilizantes, defensivos e sementes. |
+| `Insumo` | Registra produtos, unidades de medida e custos. |
+| `TipoOperacao` | Classifica os tipos de atividade agrícola. |
+| `AtividadeAgricola` | Registra uma operação realizada em um talhão. |
+| `AtividadeInsumo` | Relaciona os insumos consumidos por uma atividade. |
+| `Colheita` | Registra quantidade produzida e receita de venda. |
 
-### 4.9. Colheita
-- **Descrição Funcional:** Registro do recolhimento da produção agrícola obtida em um talhão ao final do ciclo.
-- **Atributos Essenciais:** `id` (Chave Primária), `data_colheita` (Data de encerramento e recolhimento), `quantidade_kg` (Peso líquido colhido em quilogramas), `valor_venda_total` (Valor financeiro bruto comercializado), `idTalhao` (Chave Estrangeira), `idCultura` (Chave Estrangeira).
-- **Papel no Fluxo Agrícola:** Fornece as variáveis de saída para cálculo de produtividade física (kg/ha) e retorno econômico (R$/ha).
+### Relacionamentos principais
 
----
+- Uma propriedade possui um ou mais talhões.
+- Um funcionário pertence a um cargo.
+- Um insumo pertence a um tipo de insumo.
+- Uma atividade está vinculada a talhão, cultura, funcionário e tipo de operação.
+- A máquina é opcional em uma atividade, permitindo registrar operações manuais.
+- Uma atividade pode consumir vários insumos, e um insumo pode participar de várias atividades.
+- Uma colheita relaciona o resultado produtivo a um talhão e a uma cultura.
 
-## 5. Regras de Negócio Fundamentais
+## Regras de negócio implementadas
 
-1. **Dependência Hierárquica Territorial:** Um talhão não pode existir sem estar estritamente associado a uma propriedade cadastrada. A área do talhão deve ser estritamente maior que zero e compatível com os limites da propriedade.
-2. **Unicidade de Identificadores Cadastrais:** Não é permitida a duplicação de colaboradores com o mesmo número de CPF, garantindo unicidade no controle de operadores de campo.
-3. **Consistência de Intervenção Agrícola:** Toda atividade de campo deve obrigatoriamente referenciar um talhão, uma cultura instalada, um responsável técnico/operacional e um tipo de operação válido. A vinculação de maquinário é facultativa (campo nulo admissível para operações manuais).
-4. **Rastreabilidade de Aplicação de Insumos:** O consumo de insumos só pode ser computado caso esteja atrelado a uma atividade agrícola formalmente registrada, sendo obrigatória a especificação de uma quantidade estritamente positiva.
-5. **Apontamento de Resultados da Colheita:** O registro de colheita vincula obrigatoriamente o talhão colhido à respectiva cultura, exigindo valores de quantidade colhida e valor de venda não negativos.
-6. **Integridade Referencial:** A exclusão de entidades pais (Propriedade, Cultura, Funcionario, Insumo) é bloqueada (`ON DELETE RESTRICT`) caso existam operações ou talhões dependentes, resguardando o histórico operacional da fazenda. A exclusão de uma atividade acarreta a exclusão em cascata (`ON DELETE CASCADE`) dos seus itens de insumos consumidos.
+- Todas as chaves primárias utilizam `INT` e são informadas explicitamente na carga.
+- Áreas, quantidades aplicadas e quantidades colhidas devem ser maiores que zero.
+- O valor de venda e o custo unitário não podem ser negativos.
+- CPF, código do talhão, nome da cultura e nome do insumo são únicos.
+- A unidade de medida do insumo é limitada a `KG`, `L` ou `SC`.
+- Uma combinação de atividade e insumo não pode ser repetida.
+- A exclusão de uma atividade remove seus itens de insumo em cascata.
+- A exclusão de entidades que sustentam o histórico operacional é restringida.
+- A exclusão de uma máquina preserva a atividade e define sua referência como nula.
+- As chaves estrangeiras usadas nas consultas possuem índices dedicados.
+
+## Massa de dados
+
+A carga DML é determinística: não utiliza valores aleatórios e produz o mesmo cenário a cada execução. Ela contém casos preparados para validar as consultas, incluindo:
+
+- insumos nunca utilizados;
+- talhões sem colheita;
+- talhões com histórico de múltiplas culturas;
+- atividades manuais sem máquina;
+- máquinas com mais de dez atividades;
+- máquinas sem atividade recente ou nunca utilizadas.
+
+## Consultas relacionais
+
+O arquivo `sql/dql/03_consultas_relacionais.sql` contém:
+
+1. Custo de insumos por cultura.
+2. Produtividade física por talhão.
+3. Insumos nunca utilizados.
+4. Desempenho de máquinas com mais de 10 atividades.
+5. Receita bruta por propriedade.
+6. Custo de insumos por talhão.
+7. Funcionários com maior número de operações.
+8. Produtividade média por cultura.
+9. Talhões sem colheita.
+10. Consumo de sementes por hectare.
+11. Gasto com defensivos por propriedade.
+12. Rentabilidade estimada por cultura.
+13. Máquinas sem atividade nos últimos 30 dias.
+14. Quantidade de insumos por tipo de operação.
+15. Área plantada por cultura.
+16. Custo médio de aplicação por tipo de insumo.
+17. Os cinco insumos com maior gasto total.
+18. Talhões com histórico de múltiplas culturas.
+19. Produtividade financeira por talhão.
+20. Relatório de rastreabilidade das atividades.
+
+As consultas demonstram o uso de `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `GROUP BY`, `HAVING`, funções de agregação, expressões de tabela comuns (`WITH`) e ordenação de resultados.
+
+## Nome do repositório
+
+O nome **AgroNexo** foi revisado e mantido porque é curto, descritivo e coerente com o domínio do projeto: a integração das informações operacionais de uma propriedade agrícola.
