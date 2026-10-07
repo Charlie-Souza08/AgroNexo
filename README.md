@@ -12,7 +12,7 @@ A solução visa mitigar gargalos como o desperdício de insumos, o subdimension
 
 - Italo Yan Mendes da Silva
 - Hellen Verena da Conceição Magalhães
-- Charlie 
+- Heitor Sales Souza
 
 ---
 
