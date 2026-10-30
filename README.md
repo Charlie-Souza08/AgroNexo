@@ -87,7 +87,11 @@ Após o registro, as rotinas podem ser executadas no banco:
 
 - **Procedures** são executadas com o comando `CALL`:
   ```sql
+  BEGIN;
+
   CALL sp_atualizar_custo_insumo(1, 35.50);
+
+  ROLLBACK;
   ```
 - **Functions** são executadas com o comando `SELECT`:
   ```sql
