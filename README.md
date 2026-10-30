@@ -14,19 +14,33 @@ O **AgroNexo** é um projeto de banco de dados relacional para controle de propr
 - SQL para definição de dados (DDL)
 - SQL para manipulação de dados (DML)
 - SQL para consultas relacionais (DQL)
+- PL/pgSQL para desenvolvimento de procedures e functions
 
 ## Organização do repositório
 
 ```text
 AgroNexo/
 ├── README.md
-└── sql/
-    ├── ddl/
-    │   └── 01_estrutura.sql
-    ├── dml/
-    │   └── 02_dados.sql
-    └── dql/
-        └── 03_consultas_relacionais.sql
+├── sql/
+│   ├── ddl/
+│   │   └── 01_estrutura.sql
+│   ├── dml/
+│   │   └── 02_dados.sql
+│   └── dql/
+│       └── 03_consultas_relacionais.sql
+└── programacao-sql/
+    ├── procedures/
+    │   ├── 01_sp_registrar_colheita.sql
+    │   ├── 02_sp_registrar_aplicacao_insumo.sql
+    │   ├── 03_sp_registrar_atividade_agricola.sql
+    │   ├── 04_sp_atualizar_custo_insumo.sql
+    │   └── 05_sp_atualizar_quantidade_colheita.sql
+    └── functions/
+        ├── 01_fc_custo_total_atividade.sql
+        ├── 02_fc_produtividade_talhao.sql
+        ├── 03_fc_receita_total_propriedade.sql
+        ├── 04_fc_total_atividades_funcionario.sql
+        └── 05_fc_quantidade_colhida_cultura.sql
 ```
 
 | Diretório | Conteúdo |
@@ -34,6 +48,8 @@ AgroNexo/
 | `sql/ddl` | Criação das tabelas, restrições, relacionamentos e índices. |
 | `sql/dml` | Carga determinística dos dados usados na demonstração. |
 | `sql/dql` | As 20 consultas relacionais solicitadas no trabalho. |
+| `programacao-sql/procedures` | Procedures implementadas em PL/pgSQL para operações do sistema. |
+| `programacao-sql/functions` | Functions implementadas em PL/pgSQL para cálculos e agregações. |
 
 Os arquivos possuem prefixos numéricos que indicam a ordem de execução.
 
@@ -44,13 +60,45 @@ Os arquivos possuem prefixos numéricos que indicam a ordem de execução.
 É necessário ter o PostgreSQL instalado e um banco de dados disponível. O exemplo abaixo considera um banco chamado `agronexo`.
 
 ```bash
+# Criação do banco de dados
 createdb agronexo
+
+# Execução da estrutura (DDL), carga de dados (DML) e consultas (DQL)
 psql -d agronexo -f sql/ddl/01_estrutura.sql
 psql -d agronexo -f sql/dml/02_dados.sql
 psql -d agronexo -f sql/dql/03_consultas_relacionais.sql
+
+# Registro das procedures (PT-5)
+psql -d agronexo -f programacao-sql/procedures/01_sp_registrar_colheita.sql
+psql -d agronexo -f programacao-sql/procedures/02_sp_registrar_aplicacao_insumo.sql
+psql -d agronexo -f programacao-sql/procedures/03_sp_registrar_atividade_agricola.sql
+psql -d agronexo -f programacao-sql/procedures/04_sp_atualizar_custo_insumo.sql
+psql -d agronexo -f programacao-sql/procedures/05_sp_atualizar_quantidade_colheita.sql
+
+# Registro das functions (PT-5)
+psql -d agronexo -f programacao-sql/functions/01_fc_custo_total_atividade.sql
+psql -d agronexo -f programacao-sql/functions/02_fc_produtividade_talhao.sql
+psql -d agronexo -f programacao-sql/functions/03_fc_receita_total_propriedade.sql
+psql -d agronexo -f programacao-sql/functions/04_fc_total_atividades_funcionario.sql
+psql -d agronexo -f programacao-sql/functions/05_fc_quantidade_colhida_cultura.sql
 ```
 
-Também é possível abrir os arquivos no pgAdmin e executá-los, na mesma ordem, por meio da ferramenta de consulta.
+Após o registro, as rotinas podem ser executadas no banco:
+
+- **Procedures** são executadas com o comando `CALL`:
+  ```sql
+  BEGIN;
+
+  CALL sp_atualizar_custo_insumo(1, 35.50);
+
+  ROLLBACK;
+  ```
+- **Functions** são executadas com o comando `SELECT`:
+  ```sql
+  SELECT fc_custo_total_atividade(1);
+  ```
+
+Também é possível abrir os arquivos no pgAdmin e executá-los por meio da ferramenta de consulta, respeitando a mesma ordem.
 
 > O arquivo DDL remove e recria as tabelas do projeto. Não deve ser executado em um banco que contenha dados que precisem ser preservados.
 
@@ -133,6 +181,30 @@ O arquivo `sql/dql/03_consultas_relacionais.sql` contém:
 20. Relatório de rastreabilidade das atividades.
 
 As consultas demonstram o uso de `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `GROUP BY`, `HAVING`, funções de agregação, expressões de tabela comuns (`WITH`) e ordenação de resultados.
+
+## Procedures e Functions (PT-5)
+
+Foram implementadas cinco procedures e cinco functions na linguagem PL/pgSQL, utilizando as tabelas e relacionamentos existentes no AgroNexo.
+
+### Procedures
+
+| Procedure | Descrição |
+|---|---|
+| `sp_registrar_colheita` | Registra uma nova colheita. |
+| `sp_registrar_aplicacao_insumo` | Registra a aplicação de um insumo em uma atividade agrícola. |
+| `sp_registrar_atividade_agricola` | Registra uma atividade agrícola. |
+| `sp_atualizar_custo_insumo` | Atualiza o custo unitário de um insumo. |
+| `sp_atualizar_quantidade_colheita` | Atualiza a quantidade registrada de uma colheita. |
+
+### Functions
+
+| Function | Descrição |
+|---|---|
+| `fc_custo_total_atividade` | Calcula o custo total dos insumos utilizados em uma atividade. |
+| `fc_produtividade_talhao` | Calcula a produtividade de um talhão em kg/ha. |
+| `fc_receita_total_propriedade` | Calcula a receita total das colheitas de uma propriedade. |
+| `fc_total_atividades_funcionario` | Retorna a quantidade de atividades vinculadas a um funcionário. |
+| `fc_quantidade_colhida_cultura` | Calcula a quantidade total colhida de uma cultura. |
 
 ## Nome do repositório
 
